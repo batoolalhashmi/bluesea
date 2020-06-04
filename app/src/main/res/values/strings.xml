@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Blue Sea</string>
+    <string name="signup">إنشاء حساب</string>
+    <string name="username">اسم المستخدم</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="password">كلمة السر</string>
+    <string name="have_an_account">لديك حساب؟</string>
+    <string name="log_in">تسجيل دخول</string>
+    <string name="date_sample">29 أبريل</string>
+    <string name="available_seats">مقاعد متوفرة</string>
+    <string name="booked">محجوز</string>
+    <string name="book">احجز</string>
+    <string name="trip_status">حالة الرحلة</string>
+    <string name="to_destination">إلى الوجهة</string>
+    <string name="invalid_email">invalid email</string>
+    <string name="invalid_password_length">password too short</string>
+    <string name="login_error">couldn\'t login error accrued</string>
+    <string name="failed_sign_up">failed to signUp</string>
+    <string name="email_empty">email field can\'t be empty</string>
+    <string name="password_empty">password field can\'t be empty</string>
+    <string name="username_is_empty">username field can\'t be empty</string>
+    <string name="photo_selection_error">photo selection error</string>
+    <string name="choose_photo">choose photo</string>
+    <string name="add_user_success">add user success</string>
+    <string name="select_photo">select photo</string>
+    <string name="account_details">account details</string>
+    <string name="sign_out">sign out</string>
+    <string name="profile_setting">profile setting</string>
+    <string name="profile_image">profile image</string>
+    <string name="user_name">user name</string>
+    <string name="reserve_done">the trip has been booked</string>
+    <string name="reserve_failed">failed to book this trip</string>
+    <string name="you_have_arrived">you have arrived</string>
+</resources>

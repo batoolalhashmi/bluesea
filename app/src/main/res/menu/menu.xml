@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/profile_setting"
+        android:title="@string/profile_setting"
+        app:actionLayout="@layout/profile_menu_layout"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_user_name"
+        android:title="@string/user_name"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/sign_out"
+                android:title="@string/sign_out"
+                />
+    </menu>
+    </item>
+
+</menu>
