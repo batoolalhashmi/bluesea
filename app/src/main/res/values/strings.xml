@@ -31,4 +31,6 @@
     <string name="reserve_done">the trip has been booked</string>
     <string name="reserve_failed">failed to book this trip</string>
     <string name="you_have_arrived">you have arrived</string>
+    <string name="this_email_exists">this email already exists</string>
+    <string name="not_available">غير متوفر</string>
 </resources>

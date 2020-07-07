@@ -67,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
         if (firebaseUser != null) {
             hideForm(true);
             startActivity(HomeActivity.getStartIntent(LoginActivity.this));
-
         }
     }
 

@@ -22,6 +22,9 @@ public class Trip implements Serializable {
     private String captainId;
     private List<String> userIds;
 
+    public Trip() {
+    }
+
     public List<String> getUserIds() {
         return userIds;
     }
@@ -47,7 +50,6 @@ public class Trip implements Serializable {
     }
 
 
-
     public double getCurrentLat() {
         return currentLat;
     }
@@ -66,10 +68,6 @@ public class Trip implements Serializable {
 
     private String availableSeats;
     private String bookedUpSeats;
-
-
-    public Trip() {
-    }
 
 
     public String getBookedUpSeats() {
@@ -155,7 +153,8 @@ public class Trip implements Serializable {
     public String getFormattedDate() {
         return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(new Date(date));
     }
-    public enum Status{
+
+    public enum Status {
         MOVING_SOON,
         ON_TRIP,
         ARRIVED

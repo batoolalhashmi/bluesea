@@ -1,5 +1,8 @@
 package com.barmej.bluesea.activities;
 
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -98,6 +101,15 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
                         int seats = Integer.parseInt(tripAvailableSeats);
                         if (seats == 0 || trip.getStatus().equals(Trip.Status.ARRIVED.name()) || trip.getStatus().equals(Trip.Status.ON_TRIP.name())) {
                             reserveTrip.setClickable(false);
+                            reserveTrip.setText(getString(R.string.not_available));
+                            reserveTrip.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                        } else if (trip.getUserIds() != null) {
+                            userIds = trip.getUserIds();
+                            if (userIds.contains(stringUserId)) {
+                                reserveTrip.setClickable(false);
+                                reserveTrip.setText(getString(R.string.booked));
+                                reserveTrip.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
+                            }
                         } else {
                             reserveTrip.setClickable(true);
                         }
@@ -109,7 +121,9 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
                         if (trip.getUserIds() != null) {
                             List<String> userIds = trip.getUserIds();
                             if (trip.getStatus().equals(Trip.Status.ARRIVED.name()) && userIds.contains(stringUserId)) {
-                                showArrivedDialog();
+                                if (!((TripDetailsActivity.this).isFinishing())) {
+                                    showArrivedDialog();
+                                }
                             }
                         }
                     }
@@ -194,7 +208,10 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
             LatLng pickUpLatLng = new LatLng(trip.getPickUpLat(), trip.getPickUpLng());
             LatLng destinationLatLng = new LatLng(trip.getDestinationLat(), trip.getDestinationLng());
 
-            setCaptainMarker(captainLatLng);
+            if (trip.getStatus().equals(Trip.Status.ON_TRIP.name())) {
+                setCaptainMarker(captainLatLng);
+            }
+
             setPickUpMarker(pickUpLatLng);
             setDestinationMarker(destinationLatLng);
 

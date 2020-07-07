@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.barmej.bluesea.R;
 import com.barmej.bluesea.fragments.TripsListFragment;
@@ -29,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
+    private static final String USER_REF_PATH = "users";
     private static final String SAVED_FRAGMENT = "fragment";
     private TripsListFragment tripsListFragment;
     private String userName;
@@ -46,14 +46,13 @@ public class HomeActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        tripsListFragment = new TripsListFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (savedInstanceState == null) {
-            tripsListFragment = new TripsListFragment();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.main_layout, tripsListFragment, SAVED_FRAGMENT).commit();
-        } else {
-            tripsListFragment = (TripsListFragment) getSupportFragmentManager().findFragmentByTag(SAVED_FRAGMENT);
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,7 +68,7 @@ public class HomeActivity extends AppCompatActivity {
         final String firebaseUserId = firebaseUser.getUid();
 
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("users");
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference(USER_REF_PATH);
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -90,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         MenuItem userName = menu.findItem(R.id.menu_user_name);
-        userName.setTitle("ahmed");
+        userName.setTitle(getString(R.string.user_name));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -99,16 +98,13 @@ public class HomeActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.sign_out:
                 FirebaseAuth.getInstance().signOut();
-                if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-                    startActivity(new Intent(HomeActivity.this, SignUpActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(HomeActivity.this, "can't sign out", Toast.LENGTH_SHORT).show();
-                }
+                startActivity(new Intent(HomeActivity.this, SignUpActivity.class));
+                finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 }
 

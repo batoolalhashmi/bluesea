@@ -7,24 +7,6 @@ public class User implements Serializable {
     private String userPhoto;
     private String userName;
     private String email;
-    private String status;
-    private String bookedTrip;
-
-    public String getBookedTrip() {
-        return bookedTrip;
-    }
-
-    public void setBookedTrip(String bookedTrip) {
-        this.bookedTrip = bookedTrip;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public String getEmail() {
         return email;
@@ -61,12 +43,6 @@ public class User implements Serializable {
 
     public User() {
 
-    }
-
-    public enum Status {
-        FREE,
-        ON_TRIP,
-        ARRIVED
     }
 }
 

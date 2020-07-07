@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -111,54 +112,74 @@ public class SignUpActivity extends AppCompatActivity {
 
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         final DatabaseReference mDbRef = mDatabase.getReference("users");
+
         hideForm(true);
         mAuth = FirebaseAuth.getInstance();
         userName = userNameEditText.getText().toString();
         email = emailEditText.getText().toString();
         password = passwordEditText.getText().toString();
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+
+        mAuth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
 
-                        if (task.isSuccessful()) {
-                            final String userId = task.getResult().getUser().getUid();
-                            photoStorageReference.putFile(mUserPhotoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        photoStorageReference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Uri> task) {
-                                                if (task.isSuccessful()) {
+                        boolean isNewUser = task.getResult().getSignInMethods().isEmpty();
 
-                                                    final User user = new User();
-                                                    user.setUserName(userName);
-                                                    user.setEmail(email);
-                                                    user.setUserPhoto(task.getResult().toString());
-                                                    user.setStatus(User.Status.FREE.name());
-                                                    mDbRef.child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                startActivity(LoginActivity.getStartIntent(SignUpActivity.this));
-                                                                finish();
-                                                            } else {
-                                                                Snackbar.make(mConstraintLayout, R.string.failed_sign_up, Snackbar.LENGTH_SHORT).show();
-                                                                hideForm(false);
-                                                            }
+                        if (isNewUser) {
+
+
+                            mAuth.createUserWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                            if (task.isSuccessful()) {
+                                                final String userId = task.getResult().getUser().getUid();
+                                                photoStorageReference.putFile(mUserPhotoUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            photoStorageReference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Uri> task) {
+                                                                    if (task.isSuccessful()) {
+
+                                                                        final User user = new User();
+                                                                        user.setUserName(userName);
+                                                                        user.setEmail(email);
+                                                                        user.setUserPhoto(task.getResult().toString());
+                                                                        mDbRef.child(userId).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    startActivity(LoginActivity.getStartIntent(SignUpActivity.this));
+                                                                                    finish();
+                                                                                } else {
+                                                                                    Snackbar.make(mConstraintLayout, R.string.failed_sign_up, Snackbar.LENGTH_SHORT).show();
+                                                                                    hideForm(false);
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    } else {
+                                                                        Snackbar.make(mConstraintLayout, R.string.failed_sign_up, Snackbar.LENGTH_SHORT).show();
+                                                                        hideForm(false);
+                                                                    }
+                                                                }
+                                                            });
                                                         }
-                                                    });
-                                                } else {
-                                                    Snackbar.make(mConstraintLayout, R.string.failed_sign_up, Snackbar.LENGTH_SHORT).show();
-                                                    hideForm(false);
-                                                }
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
-                                }
-                            });
+                                        }
+                                    });
+
+
+                        } else {
+                            Snackbar.make(mConstraintLayout, R.string.this_email_exists, Snackbar.LENGTH_SHORT).show();
+                            hideForm(false);
                         }
+
                     }
                 });
     }
