@@ -30,6 +30,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String USER_REF_PATH = "users";
+    public static final String USER_NAME = "user_name";
+    public static final String USER_PHOTO = "user_photo";
+
     private TextInputEditText emailEt;
     private TextInputEditText passwordEt;
     private TextInputLayout emailLayout;
@@ -38,6 +41,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseDatabase database;
     private User user;
+    private String userName;
+    private String userPhoto;
 
 
     public static Intent getStartIntent(Context context) {
@@ -48,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
+
         passwordEt = findViewById(R.id.password_text_input_edit_text);
         emailEt = findViewById(R.id.email_text_input_edit_text);
         loginBt = findViewById(R.id.create_account_button);
@@ -66,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if (firebaseUser != null) {
             hideForm(true);
-            startActivity(HomeActivity.getStartIntent(LoginActivity.this));
+            fetchUserProfileAndLogin(firebaseUser.getUid());
         }
     }
 
@@ -88,7 +94,6 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             String userId = task.getResult().getUser().getUid();
-
                             fetchUserProfileAndLogin(userId);
                         } else {
                             hideForm(false);
@@ -98,13 +103,18 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void fetchUserProfileAndLogin(String userId) {
+    private void fetchUserProfileAndLogin(final String userId) {
         database.getReference(USER_REF_PATH).child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    startActivity(HomeActivity.getStartIntent(LoginActivity.this));
+                    userName = user.getUserName();
+                    userPhoto = user.getUserPhoto();
+                    Intent intent = HomeActivity.getStartIntent(LoginActivity.this);
+                    intent.putExtra(USER_NAME, userName);
+                    intent.putExtra(USER_PHOTO, userPhoto);
+                    startActivity(intent);
                     finish();
                 } else {
                     hideForm(false);
@@ -114,10 +124,12 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(LoginActivity.this,getString(R.string.login_error),Toast.LENGTH_SHORT).show();
 
             }
         });
     }
+
 
     private void hideForm(boolean hide) {
         if (hide) {

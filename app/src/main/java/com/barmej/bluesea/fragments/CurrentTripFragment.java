@@ -1,21 +1,18 @@
 package com.barmej.bluesea.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.barmej.bluesea.R;
 import com.barmej.bluesea.activities.TripDetailsActivity;
-import com.barmej.bluesea.adapter.TripsListAdapter;
 import com.barmej.bluesea.domain.entity.Trip;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,44 +21,47 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
-public class TripsListFragment extends Fragment implements TripsListAdapter.OnTripClickListener {
+import static java.text.DateFormat.getDateInstance;
+
+public class CurrentTripFragment extends Fragment {
     private static final String TRIP_REF_PATH = "trips";
-    private static final String DATE = "date";
-    private RecyclerView mRecycleViewTrips;
-    private TripsListAdapter mTripsListAdapter;
-    private ArrayList<Trip> mTrips;
+    private static final String FORMATTED_DATE = "formattedDate";
+    private Trip trip;
 
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_trips_list, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_current_trip, container, false);
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecycleViewTrips = view.findViewById(R.id.recycler_view_trip);
-
-        mRecycleViewTrips.setLayoutManager(new LinearLayoutManager(getContext()));
-        mTrips = new ArrayList<>();
-
-        mTripsListAdapter = new TripsListAdapter(mTrips, TripsListFragment.this);
-        mRecycleViewTrips.setAdapter(mTripsListAdapter);
+        final TextView tripPickUpPortTextView = view.findViewById(R.id.pick_up_port_text_view);
+        final TextView tripDestinationPortTextView = view.findViewById(R.id.destination_port_text_view);
+        final Calendar calendar = Calendar.getInstance();
+        final Date date = calendar.getTime();
+        String stringDate = getDateInstance(DateFormat.MEDIUM).format(date);
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query query = mDatabase.child(TRIP_REF_PATH)
-                .orderByChild(DATE);
+        Query query = mDatabase.child(TRIP_REF_PATH).orderByChild(FORMATTED_DATE)
+                .equalTo(stringDate);
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mTrips.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    mTrips.add(ds.getValue(Trip.class));
+                    trip = ds.getValue(Trip.class);
                 }
-                mTripsListAdapter.notifyDataSetChanged();
+                if (trip != null) {
+                    tripPickUpPortTextView.setText(trip.getPickUpPort());
+                    tripDestinationPortTextView.setText(trip.getDestinationPort());
+                }
             }
 
             @Override
@@ -71,12 +71,4 @@ public class TripsListFragment extends Fragment implements TripsListAdapter.OnTr
             }
         });
     }
-
-    @Override
-    public void onTripClick(Trip trip) {
-        Intent intent = new Intent(getContext(), TripDetailsActivity.class);
-        intent.putExtra(TripDetailsActivity.TRIP_DATA, trip);
-        startActivity(intent);
-    }
-
 }

@@ -33,4 +33,11 @@
     <string name="you_have_arrived">you have arrived</string>
     <string name="this_email_exists">this email already exists</string>
     <string name="not_available">غير متوفر</string>
+    <string name="current_trip">رحلة جارية</string>
+    <string name="can_not_book_trip_in_same_date">لا يمكن حجز رحلتين في يوم واحد</string>
+    <string name="book_trip_failed">حدث خطأ في حجز الرحلة</string>
+    <string name="no_seat_available">لا يوجد مقاعد متوفرة</string>
+    <string name="trip_not_available">الرحلة غير متوفرة</string>
+    <string name="trip_start">الرحلة جارية</string>
+    <string name="error">error accrued</string>
 </resources>
