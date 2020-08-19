@@ -125,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(LoginActivity.this,getString(R.string.login_error),Toast.LENGTH_SHORT).show();
-
+                hideForm(false);
             }
         });
     }

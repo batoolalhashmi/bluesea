@@ -21,7 +21,8 @@
 
             android:value="AIzaSyDb0PoUXxEBCNL3irwJcMhk58PLXtbC52A"/>
 
-        <activity android:name=".activities.TripDetailsActivity"></activity>
+        <activity android:name=".activities.TripDetailsActivity"
+            android:parentActivityName=".activities.HomeActivity"></activity>
 
         <activity android:name=".activities.HomeActivity">
         </activity>
@@ -35,13 +36,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".BootCompletedIntentReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
     </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 

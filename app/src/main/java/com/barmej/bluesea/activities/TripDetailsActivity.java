@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
@@ -40,9 +39,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class TripDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
     public static final String TRIP_DATA = "trip_data";
     public static final String TRIP_REF = "trips";
+    public static final String USER_REF = "users";
     private static final String FORMATTED_DATE = "formattedDate";
     private ActivityTripDetailsBinding binding;
     private Trip intentTrip;
@@ -53,7 +54,7 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
     private String tripAvailableSeats;
     private String tripBookedUpSeatsBeforeBooked;
     private String tripBookedUpSeatsAfterBooked;
-    DatabaseReference mDatabase;
+    DatabaseReference mDatabase , userDatabase;
     FirebaseUser firebaseUser;
     private Trip checkTrip;
     private String stringDate;
@@ -75,8 +76,9 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
         binding.mapView.getMapAsync(this);
         binding.reserveButton.setClickable(true);
         userIds = new ArrayList<>();
-
         mDatabase = FirebaseDatabase.getInstance().getReference(TRIP_REF);
+        userDatabase = FirebaseDatabase.getInstance().getReference(USER_REF);
+
 
         if (getIntent() != null && getIntent().getExtras() != null) {
             intentTrip = (Trip) getIntent().getExtras().getSerializable(TRIP_DATA);
@@ -127,16 +129,17 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
                             List<String> userIds = trip.getUserIds();
                             if (trip.getStatus().equals(Trip.Status.ARRIVED.name()) && userIds.contains(stringUserId)) {
                                 if (!((TripDetailsActivity.this).isFinishing())) {
-                                    showArrivedDialog();
+                                    binding.reserveButton.setClickable(false);
+                                    binding.reserveButton.setText(getString(R.string.you_have_arrived));
+                                    binding.reserveButton.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                                 }
                             }
-
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(TripDetailsActivity.this, R.string.book_trip_failed, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TripDetailsActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -219,12 +222,19 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        mMap = googleMap;
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Trip trip = dataSnapshot.child(id).getValue(Trip.class);
-                mMap = googleMap;
-                updateMarkers(trip);
+                LatLng pickUpLatLng = new LatLng(trip.getPickUpLat(), trip.getPickUpLng());
+                LatLng destinationLatLng = new LatLng(trip.getDestinationLat(), trip.getDestinationLng());
+                setPickUpMarker(pickUpLatLng);
+                setDestinationMarker(destinationLatLng);
+                LatLng captainLatLng = new LatLng(trip.getCurrentLat(), trip.getCurrentLng());
+                setCaptainMarker(captainLatLng);
+                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(captainLatLng, 10f);
+                mMap.moveCamera(update);
             }
 
             @Override
@@ -234,28 +244,6 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
         });
     }
 
-    public void updateMarkers(Trip trip) {
-        if (trip != null) {
-            LatLng captainLatLng = new LatLng(trip.getCurrentLat(), trip.getCurrentLng());
-            LatLng pickUpLatLng = new LatLng(trip.getPickUpLat(), trip.getPickUpLng());
-            LatLng destinationLatLng = new LatLng(trip.getDestinationLat(), trip.getDestinationLng());
-
-            if (trip.getStatus().equals(Trip.Status.ON_TRIP.name())) {
-                setCaptainMarker(captainLatLng);
-            }
-
-            setPickUpMarker(pickUpLatLng);
-            setDestinationMarker(destinationLatLng);
-
-            showCaptainCurrentLocationOnMap(captainLatLng);
-        }
-    }
-
-    private void showArrivedDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.you_have_arrived);
-        builder.show();
-    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -307,6 +295,8 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
         } else {
             captainMarker.setPosition(target);
         }
+        CameraUpdate update = CameraUpdateFactory.newLatLng(captainMarker.getPosition());
+        mMap.moveCamera(update);
     }
 
     public void setPickUpMarker(LatLng target) {
@@ -335,10 +325,5 @@ public class TripDetailsActivity extends AppCompatActivity implements OnMapReady
         } else {
             destinationMarker.setPosition(target);
         }
-    }
-
-    private void showCaptainCurrentLocationOnMap(LatLng captainLatLng) {
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(captainLatLng, 3f);
-        mMap.moveCamera(update);
     }
 }

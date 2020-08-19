@@ -8,6 +8,16 @@ public class User implements Serializable {
     private String userName;
     private String email;
 
+    public String getCurrentTrip() {
+        return currentTrip;
+    }
+
+    public void setCurrentTrip(String currentTrip) {
+        this.currentTrip = currentTrip;
+    }
+
+    private String currentTrip;
+
     public String getEmail() {
         return email;
     }
